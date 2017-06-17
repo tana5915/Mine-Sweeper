@@ -7,12 +7,14 @@ import java.util.Random;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.WindowConstants;
 
 public class MineSweeper {
 	static final int WIDTH = 10;
 	static final int HEIGHT = 15;
-	static final int NUM_MINES = 15;
-
+	static final int NUM_MINES = 149;
+int counter=(WIDTH*HEIGHT)-NUM_MINES;
 	final JFrame frame;
 	Optional<boolean[][]> mines = Optional.empty();
 
@@ -22,23 +24,52 @@ public class MineSweeper {
 		frame.setResizable(false);
 		frame.setLayout(new GridLayout(HEIGHT, WIDTH));
 
-		for (int i = 0; i < WIDTH * HEIGHT; ++i) {
-			final JButton b = new JButton();
-			// Uncomment the following line, adding a listener that:
-			// 1. Initializes the mines if necessary.
-			// 2. Display either the mine if there is one, or the number of
-			// neighboring cells contain mines.
-			// Use a lambda here.
-			// b.addActionListener(...);
-			// Uncomment the following line, add a listener that displays a
-			// dialog box if mines have been swept.
-			// Use a method handle here.
-			// b.addActionListener(...);
-			frame.add(b);
+		for (int y = 0; y < HEIGHT; ++y) {
+				for (int x = 0; x < WIDTH; ++x) {
+				final JButton b = new JButton();
+				final int x1 = x;
+				final int y1 = y;
+			
+				// Uncomment the following line, adding a listener that:
+				// 1. Initializes the mines if necessary.
+				// 2. Display either the mine if there is one, or the number of
+				// neighboring cells contain mines.
+				// Use a lambda here.
+				 b.addActionListener(this::showDialogIfAllMinesSwept);
+				// Uncomment the following line, add a listener that displays a
+				// dialog box if mines have been swept.
+				// Use a method handle here.
+				b.addActionListener(evt -> {
+					
+					if (!mines.isPresent()) {
+						initializeMines(x1, y1);
+					}
+					System.out.println("X1 = " + x1 + "	Y1 = " + y1);
+					if (mines.get()[x1][y1]) {
+						b.setText("X");
 
+						JOptionPane.showMessageDialog(null, "A Mine has been triggered you have lost!");
+						System.exit(0);
+					}
+					else
+					{
+						String t = Integer.toString(getNeighboringMinesCount(x1,y1));
+						b.setText(t);
+	
+						
+					}
+					
+					b.setEnabled(false);
+					
+				});
+
+				frame.add(b);
+			}
 		}
 
 		frame.setVisible(true);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		
 	}
 
 	public void initializeMines(int firstCellX, int firstCellY) {
@@ -70,7 +101,8 @@ public class MineSweeper {
 		int yEnd = Math.min(HEIGHT - 1, y + 1);
 		int counter = 0;
 		for (int i = xStart; i <= xEnd; i++) {
-			for (int j = yStart; j <= b.length; j++) {
+			for (int j = yStart; j <= yEnd; j++) {
+				System.out.println(i +" "+j);
 				if (b[i][j]) {
 					counter++;
 				}
@@ -80,10 +112,12 @@ public class MineSweeper {
 	}
 
 	public void showDialogIfAllMinesSwept(ActionEvent evt) {
-		// TODO check and see if all non-mine cells is open, and if so, display
-		// a dialog to indicate that mines have been swept
+		counter--;
+	if(counter==0)
+	{
+		JOptionPane.showMessageDialog(null, "You win!");
 	}
-
+	}
 	public static void main(String[] args) {
 		new MineSweeper();
 	}
